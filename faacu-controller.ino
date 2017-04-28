@@ -36,17 +36,62 @@ void setup() {
 
 void loop() {
 
-  if (powerMonitor.getMeasurementCount() >= NUM_MEASUREMENTS) {
-    powerMonitor.resetMeasurementCount();
+  switch (state) {
+    
+    case NOT_STARTED:
+      // TODO: continuously read from serial and wait for the different commands
+      read_from_serial();
+      break;
+      
+    case RUNNING:
+      // TODO: this is where the real work goes
+      // once a start command comes in, code should start and move to the running state
 
-    // move to the next position for a measurement and update the monitor's state
-    azimuthStepper.moveToNext();
-    powerMonitor.setAzimuth(azAngle);
-    powerMonitor.setElevation(azAngle++);
-    //Serial.println();
-    //Serial.println(azimuthStepper.getCurrentAngle());
+      // TODO: still need to continuously read from serial in case a pause command comes in
+
+      if (powerMonitor.getMeasurementCount() >= NUM_MEASUREMENTS) {
+        powerMonitor.resetMeasurementCount();
+    
+        // move to the next position for a measurement and update the monitor's state
+        azimuthStepper.moveToNext();
+        powerMonitor.setAzimuth(azAngle);
+        powerMonitor.setElevation(azAngle++);
+        //Serial.println();
+        //Serial.println(azimuthStepper.getCurrentAngle());
+      }
+    
+      // continually call this to make sure the measurements are made and sent over serial
+      powerMonitor.run();
+      
+      break;
+
+    case PAUSED:
+      // TODO: this should be triggered if a pause command is received
+      // continuously reads from serial waiting for a restart command
+      break;
+
+    default:
+      // for now, nothing to do for the unknown state case
+      break;
+  }
+  
+
+  
+}
+
+
+
+void read_from_serial() {
+
+  int c;
+  if (Serial.available() > 0) {
+    c = Serial.read();
+    Serial.println();
+    Serial.println(c);
+    Serial.println();
   }
 
-  // continually call this to make sure the measurements are made and sent over serial
-  powerMonitor.run();
+  
 }
+
+

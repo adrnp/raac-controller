@@ -54,6 +54,8 @@ void setup() {
 
   // need to make sure that the monitor is enabled
   powerMonitor.enable();
+  powerMonitor.setAzimuth(azimuthStepper.getCurrentAngle());
+  powerMonitor.setElevation(azimuthStepper.getCurrentAngle());
 
   //powerMonitor.setup();
 
@@ -86,8 +88,8 @@ void loop() {
     
         // move to the next position for a measurement and update the monitor's state
         azimuthStepper.moveToNext();
-        powerMonitor.setAzimuth(azAngle);
-        powerMonitor.setElevation(azAngle++);
+        powerMonitor.setAzimuth(azimuthStepper.getCurrentAngle());
+        powerMonitor.setElevation(azimuthStepper.getCurrentAngle());
         //Serial.println();
         //Serial.println(azimuthStepper.getCurrentAngle());
       }

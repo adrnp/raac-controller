@@ -63,29 +63,23 @@ void setup() {
 
 void loop() {
 
-  String res;
+  // check the serial connection to see if there is a new command
+  // if so, execute the command
+  if (getCommand()) {
+    handleCommand();
+  }
+
   switch (state) {
     
     case State::NOT_STARTED:
-      // TODO: continuously read from serial and wait for the different commands
-      res = read_from_serial();
-
-      if (res != "") {
-        digitalWrite(13, HIGH);
-        if (res == "1") {
-          state = State::RUNNING;
-        } else {
-          digitalWrite(13, LOW);
-        }
-      }
-      
+      // nothing to do here...
+      // TODO: there should be some sort of initialize function
+      // that probably needs to be called before we go to the runing state
       break;
       
     case State::RUNNING:
       // TODO: this is where the real work goes
       // once a start command comes in, code should start and move to the running state
-
-      // TODO: still need to continuously read from serial in case a pause command comes in
 
       if (powerMonitor.getMeasurementCount() >= NUM_MEASUREMENTS) {
         powerMonitor.resetMeasurementCount();
@@ -149,6 +143,9 @@ bool getCommand() {
   // check to see if we have serial data
   if (Serial.available() > 0) {
 
+    // DEBUG
+    digitalWrite(13, HIGH);
+
     // the first byte is the command type, so just read that
     byte b = Serial.read();
     cmdType = static_cast<CommandType>(b);
@@ -179,6 +176,10 @@ bool getCommand() {
         break;
         
     }
+
+    // DEBUG
+    digitalWrite(13, LOW);
+    
     return true;
 
     // TODO: catch the errors that might occur if for some reason
@@ -200,6 +201,9 @@ void handleCommand() {
     case CommandType::START:
       // set the state to running
       state = State::RUNNING;
+
+      // for debugging, also light up the LED
+      digitalWrite(13, HIGH);
 
       // TODO: read the desired axis and handle that
       

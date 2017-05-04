@@ -29,7 +29,7 @@ enum class CommandType : uint8_t {
   START = 0,
   STOP,
   PAUSE,
-  SET,
+  ZERO,
   RESET,
   MOVE,
   CONFIGURE
@@ -162,7 +162,7 @@ bool getCommand() {
 
       /* commands that have a length of 1 byte */
       case CommandType::START:
-      case CommandType::SET:
+      case CommandType::ZERO:
       case CommandType::RESET:
         Serial.readBytes(sbuf, 1);
         break;
@@ -225,7 +225,7 @@ void handleCommand() {
       digitalWrite(13, LOW);
       break;
   
-    case CommandType::SET:
+    case CommandType::ZERO:
   
       break;
   

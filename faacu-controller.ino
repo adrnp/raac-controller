@@ -60,6 +60,7 @@ void setup() {
   //powerMonitor.setup();
 
   pinMode(13, OUTPUT);
+  digitalWrite(13, LOW);
 
 }
 
@@ -89,7 +90,7 @@ void loop() {
         // move to the next position for a measurement and update the monitor's state
         azimuthStepper.moveToNext();
         powerMonitor.setAzimuth(azimuthStepper.getCurrentAngle());
-        powerMonitor.setElevation(azimuthStepper.getCurrentAngle());
+        powerMonitor.setElevation(0);
         //Serial.println();
         //Serial.println(azimuthStepper.getCurrentAngle());
       }
@@ -149,7 +150,8 @@ bool getCommand() {
     digitalWrite(13, HIGH);
 
     // the first byte is the command type, so just read that
-    byte b = Serial.read();
+    char b = Serial.read();
+    //Serial.write(b);
     cmdType = static_cast<CommandType>(b);
 
     // the number of bytes to read now will depend on the command type
@@ -165,16 +167,19 @@ bool getCommand() {
       case CommandType::ZERO:
       case CommandType::RESET:
         Serial.readBytes(sbuf, 1);
+        //Serial.write(sbuf, 1);
         break;
 
       /* move command has 2 bytes of additional data */
       case CommandType::MOVE:
         Serial.readBytes(sbuf, 2);
+        //Serial.write(sbuf, 2);
         break;
 
       /* configure command has 6 additional bytes of data */
       case CommandType::CONFIGURE:
         Serial.readBytes(sbuf, 6);
+        //Serial.write(sbuf, 6);
         break;
         
     }
@@ -239,7 +244,16 @@ void handleCommand() {
   
     case CommandType::CONFIGURE:
   
-      break;    
+      break;
+    default:
+      digitalWrite(13, LOW);
+      delay(500);
+      digitalWrite(13, HIGH);
+      delay(100);
+      digitalWrite(13, LOW);
+      delay(100);
+      digitalWrite(13, HIGH);
+      break;
   }
   
 }

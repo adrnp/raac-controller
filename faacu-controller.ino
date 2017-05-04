@@ -213,10 +213,16 @@ void handleCommand() {
   
     case CommandType::STOP:
       state = State::NOT_STARTED;
+
+      // for debugging, turn off the LED
+      digitalWrite(13, LOW);
       break;
   
     case CommandType::PAUSE:
       state = State::PAUSED;
+
+      // for debugging, turn off the LED
+      digitalWrite(13, LOW);
       break;
   
     case CommandType::SET:

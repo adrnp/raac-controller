@@ -37,9 +37,9 @@ enum class CommandType : uint8_t {
 CommandType cmdType;  // global command type - set when getting a command from serial
 
 enum class Axis : uint8_t {
-  ELEVATION = 0,
+  BOTH = 0,
   AZIMUTH,
-  BOTH
+  ELEVATION,
 };
 
 byte sbuf[32];  // buffer to fill when reading from serial

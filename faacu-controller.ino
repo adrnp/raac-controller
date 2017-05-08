@@ -21,6 +21,7 @@ State state = State::NOT_STARTED;
 // Objects needed
 
 AngleStepper azimuthStepper(AngleStepper::EIGTH_STEP, 3, 2);
+AngleStepper elevationStepper(AngleStepper::EIGTH_STEP, 7, 6);
 RFPowerMonitor powerMonitor(RFPowerMonitor::F_880, 5, A0);
 
 
@@ -84,19 +85,11 @@ void loop() {
       // TODO: this is where the real work goes
       // once a start command comes in, code should start and move to the running state
 
-      if (powerMonitor.getMeasurementCount() >= NUM_MEASUREMENTS) {
-        powerMonitor.resetMeasurementCount();
-    
-        // move to the next position for a measurement and update the monitor's state
-        azimuthStepper.moveToNext();
-        powerMonitor.setAzimuth(azimuthStepper.getCurrentAngle());
-        powerMonitor.setElevation(0);
-        //Serial.println();
-        //Serial.println(azimuthStepper.getCurrentAngle());
-      }
-    
-      // continually call this to make sure the measurements are made and sent over serial
-      powerMonitor.run();
+      // for actual runs
+      //runCharacterization();
+
+      // DEBUG: for testing
+      testMotors();
       
       break;
 
@@ -115,21 +108,37 @@ void loop() {
 }
 
 
+/**
+ * helper function to be able to quickly run the loop to test the motors
+ */
+void testMotors() {
+  // simply move each motors one step at a time
+  // TODO: this is where might want a run command...
+  azimuthStepper.moveToNext();
+  elevationStepper.moveToNext();
+  delay(500);
+}
 
-String read_from_serial() {
 
-  int c;
-  String test = "";
-  if (Serial.available() > 0) {
-    //c = Serial.read();
-    //Serial.write(c);
-    
-    test = Serial.readString();
-    Serial.write(test.c_str());
+/**
+ * helper function for actually running the characterization
+ */
+void runCharacterization() {
+  if (powerMonitor.getMeasurementCount() >= NUM_MEASUREMENTS) {
+    powerMonitor.resetMeasurementCount();
+
+    // move to the next position for a measurement and update the monitor's state
+    azimuthStepper.moveToNext();
+    powerMonitor.setAzimuth(azimuthStepper.getCurrentAngle());
+    powerMonitor.setElevation(0);
+    //Serial.println();
+    //Serial.println(azimuthStepper.getCurrentAngle());
   }
 
-  return test;
+  // continually call this to make sure the measurements are made and sent over serial
+  powerMonitor.run();
 }
+
 
 
 /**

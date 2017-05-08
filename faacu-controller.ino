@@ -73,6 +73,9 @@ void loop() {
     handleCommand();
   }
 
+  // DEBUG: for testing
+  testMotors();
+
   switch (state) {
     
     case State::NOT_STARTED:
@@ -89,7 +92,7 @@ void loop() {
       //runCharacterization();
 
       // DEBUG: for testing
-      testMotors();
+      //testMotors();
       
       break;
 
@@ -115,7 +118,7 @@ void testMotors() {
   // simply move each motors one step at a time
   // TODO: this is where might want a run command...
   azimuthStepper.moveToNext();
-  elevationStepper.moveToNext();
+  elevationStepper.moveBy(9);
   delay(500);
 }
 

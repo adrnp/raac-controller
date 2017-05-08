@@ -34,6 +34,10 @@ void setup() {
 
   //powerMonitor.setup();
 
+  // to speed things up, we will up the step sizes used
+  azimuthStepper.setNextStepSize(8);
+  azimuthStepper.setNextStepSize(8);
+
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
 
@@ -48,7 +52,7 @@ void loop() {
   }
 
   // DEBUG: for testing
-  testMotors();
+  //testMotors();
 
   switch (state) {
     

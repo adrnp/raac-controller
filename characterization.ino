@@ -12,7 +12,7 @@ enum class Characterization : uint8_t {
 
 // Run Configuration Information
 int minAzAngle = 0;
-int maxAzAngle = 360;
+int maxAzAngle = 270; //360;  // DEBUG - for testing, not doing a full 360
 
 int minElAngle = 0;
 int maxElAngle = 90;
@@ -21,6 +21,8 @@ int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
 
 Characterization characterizationType = Characterization::FULL;
 
+int measurmentRate = 10; // [Hz]
+float timeout = 1.0/measurementRate * 1000.0
 
 // Run State Information
 float currentAzAngle = 0;
@@ -28,6 +30,8 @@ float currentElAngle = 0;
 
 bool azimuthCompleted = false;
 bool elevationCompleted = false;
+
+long lastMeasurementTime = 0;
 
 
 void configureCharacterizationRun() {
@@ -48,7 +52,7 @@ void setAzimuth() {
     azimuthStepper.moveToNext();
     
   } else {  // once we've swept through the entire azimuth range, reset
-    azimuthStepper.moveTo(minAzAngle);
+    azimuthStepper.moveTo(360);
     azimuthCompleted = true;
   }
 }
@@ -83,6 +87,11 @@ void setElevation() {
  * 
  */
 void runCharacterization() {
+
+  // want to do this at a specific frequency
+  if (millis() - lastMeasurementTime < timeout) {
+    return;
+  }
 
   // move motors, only if have made enough measurements
   // TODO: move to class

@@ -1,13 +1,12 @@
+/* file that contains the overall state machine for the controller */
+
+// includes
 #include <AngleStepper.h>
 #include <RFPowerMonitor.h>
 
-// CONSTANTS
 
-/* the number of measurements to make at each azimuth/elevation set */
-int NUM_MEASUREMENTS = 5;
 
-int azAngle = 0;
-
+// Variables
 
 /* the current state of the running */
 enum class State : uint8_t {
@@ -15,14 +14,13 @@ enum class State : uint8_t {
   RUNNING,            // <-- have started a characterization run
   PAUSED              // <-- paused a characterization run
 };
-
 State state = State::NOT_STARTED;
 
-// Objects needed
-
+/* characterization stuff */
 AngleStepper azimuthStepper(AngleStepper::EIGTH_STEP, 3, 2);
 AngleStepper elevationStepper(AngleStepper::EIGTH_STEP, 7, 6);
 RFPowerMonitor powerMonitor(RFPowerMonitor::F_880, 5, A0);
+
 
 
 void setup() {
@@ -65,7 +63,7 @@ void loop() {
       // once a start command comes in, code should start and move to the running state
 
       // for actual runs
-      //runCharacterization();
+      runCharacterization();
 
       // DEBUG: for testing
       //testMotors();
@@ -81,9 +79,7 @@ void loop() {
       // for now, nothing to do for the unknown state case
       break;
   }
-  
 
-  
 }
 
 
@@ -99,24 +95,7 @@ void testMotors() {
 }
 
 
-/**
- * helper function for actually running the characterization
- */
-void runCharacterization() {
-  if (powerMonitor.getMeasurementCount() >= NUM_MEASUREMENTS) {
-    powerMonitor.resetMeasurementCount();
 
-    // move to the next position for a measurement and update the monitor's state
-    azimuthStepper.moveToNext();
-    powerMonitor.setAzimuth(azimuthStepper.getCurrentAngle());
-    powerMonitor.setElevation(0);
-    //Serial.println();
-    //Serial.println(azimuthStepper.getCurrentAngle());
-  }
-
-  // continually call this to make sure the measurements are made and sent over serial
-  powerMonitor.run();
-}
 
 
 

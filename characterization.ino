@@ -9,20 +9,30 @@ enum class Characterization : uint8_t {
   ELEVATION
 };
 
+/*
+struct __attribute__((__packed__)) MeasurementMessage {
+  unsigned long timestamp;
+  float signalStrength;
+  float azimuth;
+  float elevation;
+};
+*/
 
 // Run Configuration Information
 int minAzAngle = 0;
-int maxAzAngle = 270; //360;  // DEBUG - for testing, not doing a full 360
+int maxAzAngle = 359;  // DEBUG - for testing, not doing a full 360
 
 int minElAngle = 0;
 int maxElAngle = 90;
 
-int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+int numMeasurements = 1; //DEFAULT_NUM_MEASUREMENTS;
 
 Characterization characterizationType = Characterization::FULL;
 
-int measurmentRate = 10; // [Hz]
-float timeout = 1.0/measurementRate * 1000.0
+/*
+int measurementRate = 10; // [Hz]
+float timeout = 1.0/measurementRate * 1000.0; // for loop rate
+*/
 
 // Run State Information
 float currentAzAngle = 0;
@@ -31,8 +41,10 @@ float currentElAngle = 0;
 bool azimuthCompleted = false;
 bool elevationCompleted = false;
 
+/*
+int measurementCount = 0;
 long lastMeasurementTime = 0;
-
+*/
 
 void configureCharacterizationRun() {
   // TODO: fill this in to be able to configure everything for the characterization
@@ -48,13 +60,25 @@ void configureCharacterizationRun() {
 void setAzimuth() {
 
   // if still have azimuth to sweep out, move to the next step
-  if (azimuthStepper.getCurrentAngle() < maxAzAngle) {
+  if (azimuthStepper.getAngleSwept() < maxAzAngle) {
     azimuthStepper.moveToNext();
     
   } else {  // once we've swept through the entire azimuth range, reset
-    azimuthStepper.moveTo(360);
+    azimuthStepper.moveTo(0);
+    azimuthStepper.resetAngleSwept();
     azimuthCompleted = true;
+
+    Serial.println();
+    Serial.println("azimuth completed");
+    Serial.println();
   }
+
+  Serial.println();
+  Serial.print("azimuth: ");
+  Serial.print(azimuthStepper.getCurrentAngle());
+  Serial.print(", ");
+  Serial.print(azimuthStepper.getAngleSwept());
+  Serial.println();
 }
 
 
@@ -76,7 +100,18 @@ void setElevation() {
   } else {  // reset the elevation motor and flag completion
     elevationStepper.moveTo(minElAngle);
     elevationCompleted = true;
+
+    Serial.println();
+    Serial.println("elevation completed");
+    Serial.println();
   }
+
+  Serial.println();
+  Serial.print("elevation: ");
+  Serial.print(elevationStepper.getCurrentAngle());
+  Serial.print(", ");
+  Serial.print(elevationStepper.getCurrentStep());
+  Serial.println();
 }
 
 
@@ -89,13 +124,16 @@ void setElevation() {
 void runCharacterization() {
 
   // want to do this at a specific frequency
+  /*
   if (millis() - lastMeasurementTime < timeout) {
     return;
   }
+  */
 
   // move motors, only if have made enough measurements
   // TODO: move to class
   if (powerMonitor.getMeasurementCount() >= numMeasurements) {
+    powerMonitor.resetMeasurementCount();  // important to reset measurement counter!!!
     bool completed = false;
 
     // motor movement is based on which characterization is being run
@@ -124,9 +162,19 @@ void runCharacterization() {
     }
   }
 
-  // run the measurement making scheme
+  // run the measurement scheme
   // TODO: move to class
   powerMonitor.run();
+
+  /*
+  // make a single measurement
+  float measurement = powerMonitor.makeMeasurement();
+  measurementCount++;
+  lastMeasurementTime = millis();
+
+  // send the data to the computer
+  sendData(measurement, azimuthStepper.getCurrentAngle(), elevationStepper.getCurrentAngle());
+  */
 }
 
 
@@ -169,4 +217,32 @@ bool updateElevationCharacterization() {
   // return completion state
   return elevationCompleted;
 }
+
+
+/**
+ * send the data to the computer
+ */
+/*
+void sendData(float signalStrength, float azimuth, float elevation) {
+
+  // pack the message
+  MeasurementMessage msg;
+  msg.timestamp = lastMeasurementTime;
+  msg.signalStrength = signalStrength;
+  msg.azimuth = azimuth;
+  msg.elevation = elevation;
+
+
+  // send the data over the serial port
+  // sync bytes first
+  Serial.write(0xA0);
+  Serial.write(0xB1);
+
+  // the actual data
+  Serial.write((uint8_t*) &msg, sizeof(msg));
+
+  return;
+}
+*/
+
 

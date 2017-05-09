@@ -36,7 +36,7 @@ void setup() {
 
   // to speed things up, we will up the step sizes used
   azimuthStepper.setNextStepSize(8);
-  azimuthStepper.setNextStepSize(8);
+  elevationStepper.setNextStepSize(32);
 
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
@@ -53,6 +53,7 @@ void loop() {
 
   // DEBUG: for testing
   //testMotors();
+  runCharacterization();
 
   switch (state) {
     
@@ -67,7 +68,7 @@ void loop() {
       // once a start command comes in, code should start and move to the running state
 
       // for actual runs
-      runCharacterization();
+      //runCharacterization();
 
       // DEBUG: for testing
       //testMotors();

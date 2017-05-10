@@ -73,6 +73,10 @@ void loop() {
       //runCharacterization();
       autoChar.run();
 
+      if (autoChar.isCompleted()) {
+        state = State::NOT_STARTED;
+      }
+
       // DEBUG: for testing
       //testMotors();
       

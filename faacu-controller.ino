@@ -3,8 +3,7 @@
 // includes
 #include <AngleStepper.h>
 #include <RFPowerMonitor.h>
-
-
+#include <AutoCharacterization.h>
 
 // Variables
 
@@ -21,6 +20,7 @@ AngleStepper azimuthStepper(AngleStepper::EIGTH_STEP, 3, 2);
 AngleStepper elevationStepper(AngleStepper::EIGTH_STEP, 7, 6);
 RFPowerMonitor powerMonitor(RFPowerMonitor::F_880, 5, A0);
 
+AutoCharacterization autoChar(AutoCharacterization::Type::FULL, AutoCharacterization::Mode::PHI_THETA, &powerMonitor, &azimuthStepper, &elevationStepper);
 
 
 void setup() {
@@ -29,14 +29,16 @@ void setup() {
 
   // need to make sure that the monitor is enabled
   powerMonitor.enable();
-  powerMonitor.setAzimuth(azimuthStepper.getCurrentAngle());
-  powerMonitor.setElevation(azimuthStepper.getCurrentAngle());
-
+  
   //powerMonitor.setup();
 
   // to speed things up, we will up the step sizes used
   azimuthStepper.setNextStepSize(16);
   elevationStepper.setNextStepSize(32);
+
+  // to speed things up with the characterization
+  autoChar.setAzimuthSweep(0, 45);
+  autoChar.setElevationSweep(0, 10);
 
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
@@ -53,7 +55,7 @@ void loop() {
 
   // DEBUG: for testing
   //testMotors();
-  runCharacterization();
+  //runCharacterization();
 
   switch (state) {
     
@@ -69,6 +71,7 @@ void loop() {
 
       // for actual runs
       //runCharacterization();
+      autoChar.run();
 
       // DEBUG: for testing
       //testMotors();

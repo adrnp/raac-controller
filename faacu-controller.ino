@@ -35,7 +35,7 @@ void setup() {
   //powerMonitor.setup();
 
   // to speed things up, we will up the step sizes used
-  azimuthStepper.setNextStepSize(8);
+  azimuthStepper.setNextStepSize(16);
   elevationStepper.setNextStepSize(32);
 
   pinMode(13, OUTPUT);

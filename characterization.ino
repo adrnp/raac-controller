@@ -25,7 +25,7 @@ int maxAzAngle = 359;  // DEBUG - for testing, not doing a full 360
 int minElAngle = 0;
 int maxElAngle = 90;
 
-int numMeasurements = 1; //DEFAULT_NUM_MEASUREMENTS;
+int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
 
 Characterization characterizationType = Characterization::FULL;
 
@@ -75,9 +75,9 @@ void setAzimuth() {
 
   Serial.println();
   Serial.print("azimuth: ");
-  Serial.print(azimuthStepper.getCurrentAngle());
+  Serial.print(azimuthStepper.getCurrentMilliAngle());
   Serial.print(", ");
-  Serial.print(azimuthStepper.getAngleSwept());
+  Serial.print(azimuthStepper.getCurrentAngle());
   Serial.println();
 }
 
@@ -108,7 +108,7 @@ void setElevation() {
 
   Serial.println();
   Serial.print("elevation: ");
-  Serial.print(elevationStepper.getCurrentAngle());
+  Serial.print(elevationStepper.getCurrentMilliAngle());
   Serial.print(", ");
   Serial.print(elevationStepper.getCurrentStep());
   Serial.println();

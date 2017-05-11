@@ -65,7 +65,7 @@ bool getCommand() {
 
       /* configure command has 6 additional bytes of data */
       case CommandType::CONFIGURE:
-        Serial.readBytes(sbuf, 6);
+        Serial.readBytes(sbuf, 4);
         //Serial.write(sbuf, 6);
         break;
         
@@ -133,8 +133,30 @@ void handleCommand() {
       break;
   
     case CommandType::CONFIGURE:
-  
+    {
+      // extract the configuration values
+      Axis axis = static_cast<Axis> (sbuf[0]);
+      uint8_t stepSize = sbuf[1];  // TODO: actually use this parameter!!! - for now ignoring it
+      uint16_t stepIncrement = (sbuf[3] << 8 | sbuf[2]);
+
+      // set the configuation value based on which axis was commanded
+      switch (axis) {
+        case Axis::BOTH:
+          azimuthStepper.setNextStepSize(stepIncrement);
+          elevationStepper.setNextStepSize(stepIncrement);
+          break;
+
+        case Axis::AZIMUTH:
+          azimuthStepper.setNextStepSize(stepIncrement);
+          break;
+
+        case Axis::ELEVATION:
+          elevationStepper.setNextStepSize(stepIncrement);
+          break;
+      }
+    
       break;
+    }
     default:
       digitalWrite(13, LOW);
       delay(500);

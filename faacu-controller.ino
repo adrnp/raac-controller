@@ -76,8 +76,8 @@ void loop() {
         state = State::STOPPED;
 
         // reset the motors to the 0 position
-        azimuthStepper.moveTo(0);
-        elevationStepper.moveTo(0);
+        azimuthStepper.reset();
+        elevationStepper.reset();
       }
       
       break;

@@ -9,11 +9,11 @@
 
 /* the current state of the running */
 enum class State : uint8_t {
-  NOT_STARTED = 0,    // <-- script has not gotten a start command from the controller
+  STOPPED = 0,    // <-- script has not gotten a start command from the controller
   RUNNING,            // <-- have started a characterization run
   PAUSED              // <-- paused a characterization run
 };
-State state = State::NOT_STARTED;
+State state = State::STOPPED;
 
 /* characterization stuff */
 AngleStepper azimuthStepper(AngleStepper::StepMode::EIGTH_STEP, 3, 2);
@@ -37,8 +37,8 @@ void setup() {
   elevationStepper.setNextStepSize(32);
 
   // to speed things up with the characterization
-  autoChar.setAzimuthSweep(0, 45);
-  autoChar.setElevationSweep(0, 10);
+  autoChar.setAzimuthSweep(45, 90);
+  autoChar.setElevationSweep(45, 55);
 
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
@@ -59,7 +59,7 @@ void loop() {
 
   switch (state) {
     
-    case State::NOT_STARTED:
+    case State::STOPPED:
       // nothing to do here...
       // TODO: there should be some sort of initialize function
       // that probably needs to be called before we go to the runing state
@@ -73,7 +73,7 @@ void loop() {
 
       // once completed, reset everything
       if (autoChar.isCompleted()) {
-        state = State::NOT_STARTED;
+        state = State::STOPPED;
 
         // reset the motors to the 0 position
         azimuthStepper.moveTo(0);

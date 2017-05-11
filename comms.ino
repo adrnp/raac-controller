@@ -96,6 +96,9 @@ void handleCommand() {
       // set the state to running
       state = State::RUNNING;
 
+      // set the auto charactertization to the start position
+      autoChar.setToStart();
+
       // for debugging, also light up the LED
       digitalWrite(13, HIGH);
 
@@ -104,7 +107,7 @@ void handleCommand() {
       break;
   
     case CommandType::STOP:
-      state = State::NOT_STARTED;
+      state = State::STOPPED;
 
       // for debugging, turn off the LED
       digitalWrite(13, LOW);

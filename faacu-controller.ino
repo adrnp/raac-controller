@@ -16,9 +16,9 @@ enum class State : uint8_t {
 State state = State::NOT_STARTED;
 
 /* characterization stuff */
-AngleStepper azimuthStepper(AngleStepper::EIGTH_STEP, 3, 2);
-AngleStepper elevationStepper(AngleStepper::EIGTH_STEP, 7, 6);
-RFPowerMonitor powerMonitor(RFPowerMonitor::F_880, 5, A0);
+AngleStepper azimuthStepper(AngleStepper::StepMode::EIGTH_STEP, 3, 2);
+AngleStepper elevationStepper(AngleStepper::StepMode::EIGTH_STEP, 7, 6);
+RFPowerMonitor powerMonitor(RFPowerMonitor::Frequency::F_880_MHz, 5, A0);
 
 AutoCharacterization autoChar(AutoCharacterization::Type::FULL, AutoCharacterization::Mode::PHI_THETA, &powerMonitor, &azimuthStepper, &elevationStepper);
 

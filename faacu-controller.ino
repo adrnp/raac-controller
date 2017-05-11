@@ -66,21 +66,19 @@ void loop() {
       break;
       
     case State::RUNNING:
-      // TODO: this is where the real work goes
-      // once a start command comes in, code should start and move to the running state
 
-      // for actual runs
-      //runCharacterization();
+      // run the charactertization -> this should be called once per loop
+      // this handles moving the motors, making measurements and send data
       autoChar.run();
 
-      
+      // once completed, reset everything
       if (autoChar.isCompleted()) {
         state = State::NOT_STARTED;
-      }
-      
 
-      // DEBUG: for testing
-      //testMotors();
+        // reset the motors to the 0 position
+        azimuthStepper.moveTo(0);
+        elevationStepper.moveTo(0);
+      }
       
       break;
 

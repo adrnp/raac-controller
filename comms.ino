@@ -50,14 +50,14 @@ bool getCommand() {
         break;
 
       /* commands that have a length of 1 byte */
-      case CommandType::START:
       case CommandType::ZERO:
       case CommandType::RESET:
         Serial.readBytes(sbuf, 1);
         //Serial.write(sbuf, 1);
         break;
 
-      /* move command has 2 bytes of additional data */
+      /* move and start commands have 2 bytes of additional data */
+      case CommandType::START:
       case CommandType::MOVE:
         Serial.readBytes(sbuf, 2);
         //Serial.write(sbuf, 2);
@@ -93,8 +93,18 @@ void handleCommand() {
   switch (cmdType) {
   
     case CommandType::START:
+    {
       // set the state to running
       state = State::RUNNING;
+
+      // read axis and number of measurements to make
+      Axis axis = static_cast<Axis> (sbuf[0]);
+      uint8_t numMeasurements = sbuf[1];
+
+      // set the configuration values
+      autoChar.setNumMeasurements(numMeasurements);
+
+      // TODO: actually use the axis parameter
 
       // set the auto charactertization to the start position
       autoChar.setToStart();
@@ -105,7 +115,7 @@ void handleCommand() {
       // TODO: read the desired axis and handle that
       
       break;
-  
+    }
     case CommandType::STOP:
       state = State::STOPPED;
 

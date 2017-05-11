@@ -65,7 +65,7 @@ bool getCommand() {
 
       /* configure command has 6 additional bytes of data */
       case CommandType::CONFIGURE:
-        Serial.readBytes(sbuf, 4);
+        Serial.readBytes(sbuf, 12);
         //Serial.write(sbuf, 6);
         break;
         
@@ -139,19 +139,29 @@ void handleCommand() {
       uint8_t stepSize = sbuf[1];  // TODO: actually use this parameter!!! - for now ignoring it
       uint16_t stepIncrement = (sbuf[3] << 8 | sbuf[2]);
 
+      int32_t startAngle = (sbuf[7] << 32 | sbuf[6] << 16 | sbuf[5] << 8 | sbuf[4]);
+      int32_t endAngle =  (sbuf[11] << 32 | sbuf[10] << 16 | sbuf[9] << 8 | sbuf[8]);
+
       // set the configuation value based on which axis was commanded
       switch (axis) {
         case Axis::BOTH:
           azimuthStepper.setNextStepSize(stepIncrement);
           elevationStepper.setNextStepSize(stepIncrement);
+
+          autoChar.setAzimuthSweep(startAngle, endAngle);
+          autoChar.setElevationSweep(startAngle, endAngle);
           break;
 
         case Axis::AZIMUTH:
           azimuthStepper.setNextStepSize(stepIncrement);
+
+          autoChar.setAzimuthSweep(startAngle, endAngle);
           break;
 
         case Axis::ELEVATION:
           elevationStepper.setNextStepSize(stepIncrement);
+
+          autoChar.setElevationSweep(startAngle, endAngle);
           break;
       }
     

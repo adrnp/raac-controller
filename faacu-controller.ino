@@ -37,8 +37,8 @@ void setup() {
   elevationStepper.setNextStepSize(32);
 
   // to speed things up with the characterization
-  autoChar.setAzimuthSweep(45, 90);
-  autoChar.setElevationSweep(45, 55);
+  autoChar.setAzimuthSweep(45000, 90000);
+  autoChar.setElevationSweep(45000, 55000);
 
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
@@ -75,9 +75,10 @@ void loop() {
       if (autoChar.isCompleted()) {
         state = State::STOPPED;
 
-        // reset the motors to the 0 position
-        azimuthStepper.reset();
-        elevationStepper.reset();
+        // reset everything to 0 (this reset the motors and all the characterization states)
+        autoChar.reset();
+        //azimuthStepper.reset();
+        //elevationStepper.reset();
       }
       
       break;

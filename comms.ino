@@ -66,7 +66,6 @@ bool getCommand() {
       /* configure command has 6 additional bytes of data */
       case CommandType::CONFIGURE:
         Serial.readBytes(sbuf, 12);
-        //Serial.write(sbuf, 6);
         break;
         
     }
@@ -149,8 +148,8 @@ void handleCommand() {
       uint8_t stepSize = sbuf[1];  // TODO: actually use this parameter!!! - for now ignoring it
       uint16_t stepIncrement = (sbuf[3] << 8 | sbuf[2]);
 
-      int32_t startAngle = (sbuf[7] << 32 | sbuf[6] << 16 | sbuf[5] << 8 | sbuf[4]);
-      int32_t endAngle =  (sbuf[11] << 32 | sbuf[10] << 16 | sbuf[9] << 8 | sbuf[8]);
+      int32_t startAngle = (((int32_t) sbuf[7]) << 24) | (((int32_t) sbuf[6]) << 16) | (((int32_t) sbuf[5]) << 8) | ((int32_t) sbuf[4]);
+      int32_t endAngle =  (((int32_t)sbuf[11]) << 24) | (((int32_t) sbuf[10]) << 16) | (((int32_t) sbuf[9]) << 8) | ((int32_t) sbuf[8]);
 
       // set the configuation value based on which axis was commanded
       switch (axis) {

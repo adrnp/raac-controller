@@ -108,6 +108,10 @@ void handleCommand() {
       // set the auto charactertization to the start position
       autoChar.setToStart();
 
+      // for now we need to move the elevation motor to the top position
+      // TODO: change the direction of rotation for elevation
+      elevationStepper.moveTo(-180000);
+
       // for debugging, also light up the LED
       digitalWrite(13, HIGH);
 

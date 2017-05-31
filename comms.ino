@@ -56,11 +56,15 @@ bool getCommand() {
         //Serial.write(sbuf, 1);
         break;
 
-      /* move and start commands have 2 bytes of additional data */
+      /* start command has 2 bytes of additional data */
       case CommandType::START:
-      case CommandType::MOVE:
         Serial.readBytes(sbuf, 2);
         //Serial.write(sbuf, 2);
+        break;
+
+      /* move command has 3 bytes of additional data */
+      case CommandType::MOVE:
+        Serial.readBytes(sbuf, 3);
         break;
 
       /* configure command has 6 additional bytes of data */
@@ -104,13 +108,16 @@ void handleCommand() {
       autoChar.setNumMeasurements(numMeasurements);
 
       // TODO: actually use the axis parameter
+      
+      // take into account real world
+      elevationStepper.setCurrentAngle(90);  // note that the physical 0 state is actually 90 degrees, so need to account for that
 
       // set the auto charactertization to the start position
       autoChar.setToStart();
 
       // for now we need to move the elevation motor to the top position
       // TODO: change the direction of rotation for elevation
-      elevationStepper.moveTo(-180000);
+      //elevationStepper.moveTo(-90000);
 
       // for debugging, also light up the LED
       digitalWrite(13, HIGH);
@@ -142,9 +149,34 @@ void handleCommand() {
       break;
   
     case CommandType::MOVE:
-  
+    {
+      Axis axis = static_cast<Axis> (sbuf[0]);
+      uint8_t dir = sbuf[1]; // 0 = cw, 1 = ccw
+      uint8_t numSteps = sbuf[2];
+
+      int dirSigned = dir;
+      if (dirSigned == 0) {
+        dirSigned = -1;
+      }
+      int stepsToMove = dirSigned * (int) numSteps;
+
+      switch (axis) {
+        case Axis::BOTH:
+          azimuthStepper.move(stepsToMove);
+          elevationStepper.move(stepsToMove);
+          break;
+
+        case Axis::AZIMUTH:
+          azimuthStepper.move(stepsToMove);
+          break;
+
+        case Axis::ELEVATION:
+          elevationStepper.move(stepsToMove);
+          break;          
+      }
+      
       break;
-  
+    }
     case CommandType::CONFIGURE:
     {
       // extract the configuration values

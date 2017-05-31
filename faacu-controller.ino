@@ -16,8 +16,8 @@ enum class State : uint8_t {
 State state = State::STOPPED;
 
 /* characterization stuff */
-AngleStepper azimuthStepper(AngleStepper::StepMode::EIGTH_STEP, 3, 2);
-AngleStepper elevationStepper(AngleStepper::StepMode::EIGTH_STEP, 7, 6);
+AngleStepper azimuthStepper(AngleStepper::StepMode::EIGTH_STEP, 3, 2, 200, 1);
+AngleStepper elevationStepper(AngleStepper::StepMode::EIGTH_STEP, 7, 6, 200, 4);
 RFPowerMonitor powerMonitor(RFPowerMonitor::Frequency::F_880_MHz, 5, A0);
 
 AutoCharacterization autoChar(AutoCharacterization::Type::FULL, AutoCharacterization::Mode::PHI_THETA, &powerMonitor, &azimuthStepper, &elevationStepper);
@@ -35,6 +35,7 @@ void setup() {
   // to speed things up, we will up the step sizes used
   azimuthStepper.setNextStepSize(16);
   elevationStepper.setNextStepSize(32);
+  //elevationStepper.setMoveToNextDirection(AngleStepper::Direction::CCW);
 
   // to speed things up with the characterization
   autoChar.setAzimuthSweep(45000, 90000);

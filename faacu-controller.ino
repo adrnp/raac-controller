@@ -38,8 +38,8 @@ void setup() {
   //elevationStepper.setMoveToNextDirection(AngleStepper::Direction::CCW);
 
   // to speed things up with the characterization
-  autoChar.setAzimuthSweep(45000, 90000);
-  autoChar.setElevationSweep(45000, 55000);
+  autoChar.setAzimuthSweep(0, 360000000);
+  autoChar.setElevationSweep(0, 90000000);
 
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
@@ -104,7 +104,7 @@ void testMotors() {
   // simply move each motors one step at a time
   // TODO: this is where might want a run command...
   azimuthStepper.moveToNext();
-  elevationStepper.moveBy(9);
+  elevationStepper.moveBy((float) 9.0);
   delay(500);
 }
 

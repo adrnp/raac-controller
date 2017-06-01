@@ -19,6 +19,27 @@ enum class Axis : uint8_t {
 byte sbuf[32];  // buffer to fill when reading from serial
 uint8_t si = 0; // index of the buffer we are currently on
 
+
+struct __attribute__((__packed__)) PositionMessage {
+  unsigned long timestamp;
+  uint8_t axis;
+  float angle;
+};
+
+void sendPosition(uint8_t axis, float position) {
+
+  PositionMessage msg;
+  msg.timestamp = millis();
+  msg.axis = axis;
+  msg.angle = position;
+
+  Serial.write(0xA0);
+  Serial.write(0xB1);
+  Serial.write((uint8_t) 2);
+  Serial.write((uint8_t*) &msg, sizeof(msg));
+  
+}
+
 /**
  * checks to see if there is a command from the serial port.
  * 
@@ -65,6 +86,7 @@ bool getCommand() {
       /* move command has 3 bytes of additional data */
       case CommandType::MOVE:
         Serial.readBytes(sbuf, 3);
+        //Serial.write(sbuf, 3);
         break;
 
       /* configure command has 6 additional bytes of data */
@@ -168,10 +190,12 @@ void handleCommand() {
 
         case Axis::AZIMUTH:
           azimuthStepper.move(stepsToMove);
+          sendPosition(static_cast<uint8_t> (Axis::AZIMUTH), (float) azimuthStepper.getCurrentMicroAngle());
           break;
 
         case Axis::ELEVATION:
           elevationStepper.move(stepsToMove);
+          sendPosition(static_cast<uint8_t> (Axis::ELEVATION), (float) elevationStepper.getCurrentMicroAngle());
           break;          
       }
       
@@ -184,6 +208,8 @@ void handleCommand() {
       uint8_t stepSize = sbuf[1];  // TODO: actually use this parameter!!! - for now ignoring it
       uint16_t stepIncrement = (sbuf[3] << 8 | sbuf[2]);
 
+      // these are milli angles, need micro angles - for now edit here, not matlab end
+      // TODO: edit the matlab end
       int32_t startAngle = (((int32_t) sbuf[7]) << 24) | (((int32_t) sbuf[6]) << 16) | (((int32_t) sbuf[5]) << 8) | ((int32_t) sbuf[4]);
       int32_t endAngle =  (((int32_t)sbuf[11]) << 24) | (((int32_t) sbuf[10]) << 16) | (((int32_t) sbuf[9]) << 8) | ((int32_t) sbuf[8]);
 
@@ -193,20 +219,24 @@ void handleCommand() {
           azimuthStepper.setNextStepSize(stepIncrement);
           elevationStepper.setNextStepSize(stepIncrement);
 
-          autoChar.setAzimuthSweep(startAngle, endAngle);
-          autoChar.setElevationSweep(startAngle, endAngle);
+          autoChar.setAzimuthStepSize(18000000);
+          autoChar.setElevationStepSize(18000000);
+          autoChar.setAzimuthSweep(startAngle*1000, endAngle*1000);
+          autoChar.setElevationSweep(startAngle*1000, endAngle*1000);
           break;
 
         case Axis::AZIMUTH:
           azimuthStepper.setNextStepSize(stepIncrement);
 
-          autoChar.setAzimuthSweep(startAngle, endAngle);
+           autoChar.setAzimuthStepSize(45000000);
+          autoChar.setAzimuthSweep(startAngle*1000, endAngle*1000);
           break;
 
         case Axis::ELEVATION:
           elevationStepper.setNextStepSize(stepIncrement);
 
-          autoChar.setElevationSweep(startAngle, endAngle);
+          autoChar.setElevationStepSize(18000000);
+          autoChar.setElevationSweep(startAngle*1000, endAngle*1000);
           break;
       }
     
@@ -224,4 +254,8 @@ void handleCommand() {
   }
   
 }
+
+
+
+
 

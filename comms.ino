@@ -23,10 +23,10 @@ uint8_t si = 0; // index of the buffer we are currently on
 struct __attribute__((__packed__)) PositionMessage {
   unsigned long timestamp;
   uint8_t axis;
-  float angle;
+  int32_t angle;
 };
 
-void sendPosition(uint8_t axis, float position) {
+void sendPosition(uint8_t axis, int32_t position) {
 
   PositionMessage msg;
   msg.timestamp = millis();
@@ -89,9 +89,10 @@ bool getCommand() {
         //Serial.write(sbuf, 3);
         break;
 
-      /* configure command has 6 additional bytes of data */
+      /* configure command has 14 additional bytes of data */
       case CommandType::CONFIGURE:
-        Serial.readBytes(sbuf, 12);
+        Serial.readBytes(sbuf, 14);
+        Serial.write(sbuf, 14);
         break;
         
     }
@@ -108,6 +109,10 @@ bool getCommand() {
   return false;
 }
 
+
+int32_t buftoint32(int si) {
+  return (((int32_t) sbuf[si+3]) << 24) | (((int32_t) sbuf[si+2]) << 16) | (((int32_t) sbuf[si+1]) << 8) | ((int32_t) sbuf[si]);
+}
 
 
 /**
@@ -190,12 +195,12 @@ void handleCommand() {
 
         case Axis::AZIMUTH:
           azimuthStepper.move(stepsToMove);
-          sendPosition(static_cast<uint8_t> (Axis::AZIMUTH), (float) azimuthStepper.getCurrentMicroAngle());
+          sendPosition(static_cast<uint8_t> (Axis::AZIMUTH), azimuthStepper.getCurrentMicroAngle());
           break;
 
         case Axis::ELEVATION:
           elevationStepper.move(stepsToMove);
-          sendPosition(static_cast<uint8_t> (Axis::ELEVATION), (float) elevationStepper.getCurrentMicroAngle());
+          sendPosition(static_cast<uint8_t> (Axis::ELEVATION), elevationStepper.getCurrentMicroAngle());
           break;          
       }
       
@@ -206,12 +211,11 @@ void handleCommand() {
       // extract the configuration values
       Axis axis = static_cast<Axis> (sbuf[0]);
       uint8_t stepSize = sbuf[1];  // TODO: actually use this parameter!!! - for now ignoring it
-      uint16_t stepIncrement = (sbuf[3] << 8 | sbuf[2]);
 
-      // these are milli angles, need micro angles - for now edit here, not matlab end
-      // TODO: edit the matlab end
-      int32_t startAngle = (((int32_t) sbuf[7]) << 24) | (((int32_t) sbuf[6]) << 16) | (((int32_t) sbuf[5]) << 8) | ((int32_t) sbuf[4]);
-      int32_t endAngle =  (((int32_t)sbuf[11]) << 24) | (((int32_t) sbuf[10]) << 16) | (((int32_t) sbuf[9]) << 8) | ((int32_t) sbuf[8]);
+      // all angles here are in microdegrees
+      int32_t stepIncrement = buftoint32(2);
+      int32_t startAngle = buftoint32(6); //(((int32_t) sbuf[7]) << 24) | (((int32_t) sbuf[6]) << 16) | (((int32_t) sbuf[5]) << 8) | ((int32_t) sbuf[4]);
+      int32_t endAngle =  buftoint32(10); //(((int32_t)sbuf[11]) << 24) | (((int32_t) sbuf[10]) << 16) | (((int32_t) sbuf[9]) << 8) | ((int32_t) sbuf[8]);
 
       // set the configuation value based on which axis was commanded
       switch (axis) {
@@ -219,24 +223,20 @@ void handleCommand() {
           azimuthStepper.setNextStepSize(stepIncrement);
           elevationStepper.setNextStepSize(stepIncrement);
 
-          autoChar.setAzimuthStepSize(18000000);
-          autoChar.setElevationStepSize(18000000);
-          autoChar.setAzimuthSweep(startAngle*1000, endAngle*1000);
-          autoChar.setElevationSweep(startAngle*1000, endAngle*1000);
+          autoChar.setAzimuthStepSize(stepIncrement);
+          autoChar.setElevationStepSize(stepIncrement);
+          autoChar.setAzimuthSweep(startAngle, endAngle);
+          autoChar.setElevationSweep(startAngle, endAngle);
           break;
 
         case Axis::AZIMUTH:
-          azimuthStepper.setNextStepSize(stepIncrement);
-
-           autoChar.setAzimuthStepSize(45000000);
-          autoChar.setAzimuthSweep(startAngle*1000, endAngle*1000);
+          autoChar.setAzimuthStepSize(stepIncrement);
+          autoChar.setAzimuthSweep(startAngle, endAngle);
           break;
 
         case Axis::ELEVATION:
-          elevationStepper.setNextStepSize(stepIncrement);
-
-          autoChar.setElevationStepSize(18000000);
-          autoChar.setElevationSweep(startAngle*1000, endAngle*1000);
+          autoChar.setElevationStepSize(stepIncrement);
+          autoChar.setElevationSweep(startAngle, endAngle);
           break;
       }
     

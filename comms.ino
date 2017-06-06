@@ -92,7 +92,7 @@ bool getCommand() {
       /* configure command has 14 additional bytes of data */
       case CommandType::CONFIGURE:
         Serial.readBytes(sbuf, 14);
-        Serial.write(sbuf, 14);
+        //Serial.write(sbuf, 14);
         break;
         
     }
@@ -127,6 +127,9 @@ void handleCommand() {
       // set the state to running
       state = State::RUNNING;
 
+      // for debugging, also light up the LED
+      digitalWrite(13, HIGH);
+
       // read axis and number of measurements to make
       Axis axis = static_cast<Axis> (sbuf[0]);
       uint8_t numMeasurements = sbuf[1];
@@ -135,9 +138,6 @@ void handleCommand() {
       autoChar.setNumMeasurements(numMeasurements);
 
       // TODO: actually use the axis parameter
-      
-      // take into account real world
-      elevationStepper.setCurrentAngle(90);  // note that the physical 0 state is actually 90 degrees, so need to account for that
 
       // set the auto charactertization to the start position
       autoChar.setToStart();
@@ -145,9 +145,6 @@ void handleCommand() {
       // for now we need to move the elevation motor to the top position
       // TODO: change the direction of rotation for elevation
       //elevationStepper.moveTo(-90000);
-
-      // for debugging, also light up the LED
-      digitalWrite(13, HIGH);
 
       // TODO: read the desired axis and handle that
       
@@ -244,7 +241,19 @@ void handleCommand() {
     }
     default:
       digitalWrite(13, LOW);
-      delay(500);
+      delay(100);
+      digitalWrite(13, HIGH);
+      delay(100);
+      digitalWrite(13, LOW);
+      delay(100);
+      digitalWrite(13, HIGH);
+      delay(100);
+      digitalWrite(13, LOW);
+      delay(100);
+      digitalWrite(13, HIGH);
+      delay(100);
+      digitalWrite(13, LOW);
+      delay(100);
       digitalWrite(13, HIGH);
       delay(100);
       digitalWrite(13, LOW);

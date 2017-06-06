@@ -35,7 +35,11 @@ void setup() {
   // to speed things up, we will up the step sizes used
   azimuthStepper.setNextStepSize(16);
   elevationStepper.setNextStepSize(32);
-  //elevationStepper.setMoveToNextDirection(AngleStepper::Direction::CCW);
+
+  // take into account real world
+  // note that the physical initial state is actually 90 degrees, so need to account for that
+  elevationStepper.setCurrentAngle(90);
+
 
   // to speed things up with the characterization
   autoChar.setAzimuthSweep(0, 360000000);
@@ -43,6 +47,13 @@ void setup() {
 
   pinMode(13, OUTPUT);
   digitalWrite(13, LOW);
+
+  // send a message that signals this is ready to go
+  autoChar.sendStatus(AutoCharacterization::Status::PAUSED);
+
+  // also send the current position to update the visual in matlab
+  sendPosition(1, azimuthStepper.getCurrentMicroAngle());
+  sendPosition(2, elevationStepper.getCurrentMicroAngle());
 
 }
 

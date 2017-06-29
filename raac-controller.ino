@@ -83,6 +83,7 @@ void loop() {
       // we will send at 10Hz
       if (millis() - lastTime > pauseTime) {
         autoChar.sendMeasurement(powerMonitor.makeMeasurement());
+        lastTime = millis();
       }
       
       break;

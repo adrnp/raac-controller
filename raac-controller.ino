@@ -22,6 +22,9 @@ RFPowerMonitor powerMonitor(RFPowerMonitor::Frequency::F_880_MHz, 5, A0);
 
 AutoCharacterization autoChar(AutoCharacterization::Type::FULL, AutoCharacterization::Mode::PHI_THETA, &powerMonitor, &azimuthStepper, &elevationStepper);
 
+// needed for continually sending data to the display
+unsigned long pauseTime = 1000;  // ms time between measurements being sent (1Hz)
+unsigned long lastTime = millis();
 
 void setup() {
 
@@ -75,6 +78,13 @@ void loop() {
       // nothing to do here...
       // TODO: there should be some sort of initialize function
       // that probably needs to be called before we go to the runing state
+
+      // want to always send position and measurement to the display - allows testing things
+      // we will send at 10Hz
+      if (millis() - lastTime > pauseTime) {
+        autoChar.sendMeasurement(powerMonitor.makeMeasurement());
+      }
+      
       break;
       
     case State::RUNNING:

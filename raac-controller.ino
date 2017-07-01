@@ -29,6 +29,7 @@ unsigned long lastTime = millis();
 void setup() {
 
   Serial.begin(115200);
+  Serial3.begin(9600);
 
   // need to make sure that the monitor is enabled
   powerMonitor.enable();

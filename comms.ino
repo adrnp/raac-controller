@@ -6,7 +6,8 @@ enum class CommandType : uint8_t {
   ZERO,
   RESET,
   MOVE,
-  CONFIGURE
+  CONFIGURE,
+  MOVE_TO
 };
 CommandType cmdType;  // global command type - set when getting a command from serial
 
@@ -137,17 +138,23 @@ void handleCommand() {
       // set the configuration values
       autoChar.setNumMeasurements(numMeasurements);
 
-      // TODO: actually use the axis parameter
+      // set the type for the auto char based on the axis parameter
+      switch (axis) {
+        case Axis::BOTH:
+          autoChar.setType(AutoCharacterization::Type::FULL);
+          break;
+
+        case Axis::AZIMUTH:
+          autoChar.setType(AutoCharacterization::Type::AZIMUTH);
+          break;
+
+        case Axis::ELEVATION:
+          autoChar.setType(AutoCharacterization::Type::ELEVATION);
+          break;
+      }
 
       // set the auto charactertization to the start position
-      autoChar.setToStart();
-
-      // for now we need to move the elevation motor to the top position
-      // TODO: change the direction of rotation for elevation
-      //elevationStepper.moveTo(-90000);
-
-      // TODO: read the desired axis and handle that
-      
+      autoChar.setToStart();      
       break;
     }
     case CommandType::STOP:
@@ -199,6 +206,30 @@ void handleCommand() {
           elevationStepper.move(stepsToMove);
           sendPosition(static_cast<uint8_t> (Axis::ELEVATION), elevationStepper.getCurrentMicroAngle());
           break;          
+      }
+      
+      break;
+    }
+    case CommandType::MOVE_TO:
+    {
+      // get the axis for the command
+      Axis axis = static_cast<Axis> (sbuf[0]);
+
+      // the angle to command in microdegrees
+      int32_t desiredAngle = buftoint32(1);
+
+      // command the desired angle
+      switch (axis) {
+        case Axis::BOTH:
+          break;
+
+        case Axis::AZIMUTH:
+          azimuthStepper.moveTo(desiredAngle);
+          break;
+
+        case Axis::ELEVATION:
+          elevationStepper.moveTo(desiredAngle);
+          break;
       }
       
       break;

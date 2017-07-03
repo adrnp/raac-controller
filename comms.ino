@@ -90,6 +90,11 @@ bool getCommand() {
         //Serial.write(sbuf, 3);
         break;
 
+      /* move to command has 5 bytes of additional data */
+      case CommandType::MOVE_TO:
+        Serial.readBytes(sbuf, 5);
+        break;
+
       /* configure command has 14 additional bytes of data */
       case CommandType::CONFIGURE:
         Serial.readBytes(sbuf, 14);

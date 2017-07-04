@@ -28,8 +28,10 @@ unsigned long lastTime = millis();
 
 void setup() {
 
-  Serial.begin(115200);
-  Serial3.begin(9600);
+  /* initialize the comm lines */
+  Serial.begin(115200);   // to matlab (or other control system)
+  Serial3.begin(9600);    // to beam steering board (external RF detector via serial)
+  Serial1.begin(115200);  // debug output
 
   // need to make sure that the monitor is enabled
   powerMonitor.enable();

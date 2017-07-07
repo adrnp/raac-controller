@@ -135,6 +135,9 @@ void handleCommand() {
   
     case CommandType::START:
     {
+      // DEBUG
+      Serial1.println("start cmd received");
+      
       // set the state to running
       state = State::RUNNING;
 
@@ -168,6 +171,9 @@ void handleCommand() {
       break;
     }
     case CommandType::STOP:
+      // DEBUG
+      Serial1.println("stop cmd received");
+      
       state = State::STOPPED;
 
       // for debugging, turn off the LED
@@ -175,6 +181,9 @@ void handleCommand() {
       break;
   
     case CommandType::PAUSE:
+      // DEBUG
+      Serial1.println("pause cmd received");
+      
       state = State::PAUSED;
 
       // for debugging, turn off the LED
@@ -191,6 +200,9 @@ void handleCommand() {
   
     case CommandType::MOVE:
     {
+      // DEBUG
+      Serial1.println("move cmd received");
+      
       Axis axis = static_cast<Axis> (sbuf[0]);
       uint8_t dir = sbuf[1]; // 0 = cw, 1 = ccw
       uint8_t numSteps = sbuf[2];
@@ -222,6 +234,9 @@ void handleCommand() {
     }
     case CommandType::MOVE_TO:
     {
+      // DEBUG
+      Serial1.println("move to cmd received");
+      
       // get the axis for the command
       Axis axis = static_cast<Axis> (sbuf[0]);
 
@@ -246,6 +261,9 @@ void handleCommand() {
     }
     case CommandType::CONFIGURE:
     {
+      // DEBUG
+      Serial1.println("configure cmd received");
+      
       // extract the configuration values
       Axis axis = static_cast<Axis> (sbuf[0]);
       uint8_t stepSize = sbuf[1];  // TODO: actually use this parameter!!! - for now ignoring it
@@ -283,6 +301,9 @@ void handleCommand() {
 
     case CommandType::SET_PHASE:
     {
+      // DEBUG
+      Serial1.println("set phase cmd received");
+      
       // need to calculate the fletcher checksum to append that when sending to PABSt
       uint8_t setPhaseMsgId = 0;
       uint8_t chkA = setPhaseMsgId;

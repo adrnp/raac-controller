@@ -7,7 +7,8 @@ enum class CommandType : uint8_t {
   RESET,
   MOVE,
   CONFIGURE,
-  MOVE_TO
+  MOVE_TO,
+  SET_PHASE
 };
 CommandType cmdType;  // global command type - set when getting a command from serial
 
@@ -99,6 +100,10 @@ bool getCommand() {
       case CommandType::CONFIGURE:
         Serial.readBytes(sbuf, 14);
         //Serial.write(sbuf, 14);
+        break;
+
+      case CommandType::SET_PHASE:
+        Serial.readBytes(sbuf, 3);
         break;
         
     }
@@ -273,6 +278,26 @@ void handleCommand() {
           break;
       }
     
+      break;
+    }
+
+    case CommandType::SET_PHASE:
+    {
+      // need to calculate the fletcher checksum to append that when sending to PABSt
+      uint8_t setPhaseMsgId = 0;
+      uint8_t chkA = setPhaseMsgId;
+      uint8_t chkB = chkA;
+      for (uint8_t i = 0; i < 3; i++) {
+        chkA += sbuf[i];
+        chkB += chkA;
+      }
+
+      // send over the set phase message + checksum
+      Serial3.write(setPhaseMsgId);
+      Serial3.write(sbuf, 3);
+      Serial3.write(chkA);
+      Serial3.write(chkB);
+      
       break;
     }
     default:

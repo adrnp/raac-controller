@@ -8,7 +8,8 @@ enum class CommandType : uint8_t {
   MOVE,
   CONFIGURE,
   MOVE_TO,
-  SET_PHASE
+  SET_PHASE,
+  CONFIG_DETECTOR
 };
 CommandType cmdType;  // global command type - set when getting a command from serial
 
@@ -73,6 +74,7 @@ bool getCommand() {
         break;
 
       /* commands that have a length of 1 byte */
+      case CommandType::CONFIG_DETECTOR:
       case CommandType::ZERO:
       case CommandType::RESET:
         Serial.readBytes(sbuf, 1);
@@ -332,6 +334,11 @@ void handleCommand() {
       
       break;
     }
+    case CommandType::CONFIG_DETECTOR:
+      // simply set the type of the detector
+      powerMonitor.setType(RFPowerMonitor::Type(sbuf[0]));
+      break;
+
     default:
       digitalWrite(13, LOW);
       delay(100);

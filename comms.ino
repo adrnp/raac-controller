@@ -313,6 +313,17 @@ void handleCommand() {
         chkB += chkA;
       }
 
+      // DEBUG
+      Serial1.print(sbuf[0]);
+      Serial1.print(" ");
+      Serial1.print(sbuf[1]);
+      Serial1.print(" ");
+      Serial1.print(sbuf[2]);
+      Serial1.print(" ");
+      Serial1.print(chkA, HEX);
+      Serial1.print(" ");
+      Serial1.println(chkB, HEX);
+      
       // send over the set phase message + checksum
       Serial3.write(setPhaseMsgId);
       Serial3.write(sbuf, 3);
